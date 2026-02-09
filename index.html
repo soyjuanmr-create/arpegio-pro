@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arpeggio Pro Ultra</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+
+<div class="app-container">
+    
+    <header class="control-panel glass-panel">
+        <div class="brand">
+            <div class="logo-mark">AP</div>
+            <h1>Arpeggio <span>Pro</span></h1>
+        </div>
+        
+        <div class="controls-grid">
+            <div class="control-group">
+                <label>Tónica</label>
+                <div class="select-wrapper">
+                    <select id="root-note"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Acorde</label>
+                <div class="select-wrapper">
+                    <select id="chord-type"></select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Afinación <span style="color:var(--secondary-accent)">★</span></label>
+                <div class="select-wrapper">
+                    <select id="tuning-select">
+                        <option value="standard">Standard E</option>
+                        <option value="dropD">Drop D (Pro)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="fretboard-container">
+        <div class="fret-markers-layer"></div>
+        <div id="scroller" class="fretboard-scroll ebony">
+            <div id="fretboard" class="fretboard"></div>
+        </div>
+    </main>
+
+    <footer class="bottom-bar glass-panel">
+        <div class="settings-group">
+            <div class="select-wrapper small">
+                <select id="material-select">
+                    <option value="ebony">Ebony</option>
+                    <option value="rosewood">Rosewood (Pro)</option>
+                    <option value="maple">Maple (Pro)</option>
+                </select>
+            </div>
+            <div class="select-wrapper small">
+                <select id="view-mode">
+                    <option value="notes">Notas</option>
+                    <option value="intervals">Intervalos</option>
+                </select>
+            </div>
+            <button id="lefty-btn" class="icon-btn">Diestro</button>
+        </div>
+
+        <div class="playback-controls">
+            <button class="nav-btn" onclick="scrollF(false)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button id="play-btn">
+                <span>REPRODUCIR</span>
+            </button>
+            <button class="nav-btn" onclick="scrollF(true)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+    </footer>
+</div>
+
+<div id="premium-modal" class="modal-overlay">
+    <div class="modal-content glass-panel">
+        <div class="modal-icon">💎</div>
+        <h2>Desbloquea Arpeggio Pro</h2>
+        <p>Esta función está disponible solo en la versión Premium.</p>
+        <ul class="premium-features">
+            <li>🔓 Afinaciones Alternativas (Drop D)</li>
+            <li>🔓 Maderas Exóticas (Rosewood, Maple)</li>
+            <li>🔓 Sin anuncios</li>
+        </ul>
+        <button id="buy-btn" class="buy-button">Desbloquear por 2.99€</button>
+        <button id="close-modal" class="close-text">Seguir usando gratis</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+    // Registro del Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registrado', reg))
+                .catch(err => console.log('SW falló', err));
+        });
+    }
+</script>
+</body>
+</html>
