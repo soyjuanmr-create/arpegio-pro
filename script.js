@@ -1,208 +1,215 @@
-const fretboard = document.getElementById('fretboard');
-const scroller = document.getElementById('scroller');
-const playBtn = document.getElementById('play-btn'); // Referencia al botón
-
-// --- ESTADO DE LA APP ---
-let isPremium = false; 
-
-// 1. Verificar persistencia
-if(localStorage.getItem('arpeggio_status') === 'premium') {
-    isPremium = true;
-    console.log("💎 Usuario Premium detectado");
-}
-
-const notes = ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-const chords = [
-    {v:"major", n:"Mayor"}, {v:"minor", n:"Menor"}, 
-    {v:"7", n:"7ma"}, {v:"maj7", n:"Maj7"}, 
-    {v:"m7", n:"m7"}, {v:"dim", n:"Dim"}
-];
-const tuning = { 
-    standard: ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'], 
-    dropD: ['D2', 'A2', 'D3', 'G3', 'B3', 'E4'] 
-};
-
-// --- INICIALIZACIÓN VISUAL ---
-document.getElementById('root-note').innerHTML = '';
-document.getElementById('chord-type').innerHTML = '';
-notes.forEach(n => document.getElementById('root-note').innerHTML += `<option value="${n}">${n}</option>`);
-chords.forEach(c => document.getElementById('chord-type').innerHTML += `<option value="${c.v}">${c.n}</option>`);
-
-
-// --- 🎸 SONIDO PROFESIONAL (CON INDICADOR DE CARGA) ---
-
-// Bloqueamos el botón mientras carga para evitar confusión
-if(playBtn) {
-    playBtn.innerText = "⏳ CARGANDO...";
-    playBtn.style.opacity = "0.5";
-    playBtn.disabled = true;
-}
-
-const reverb = new Tone.Reverb({ decay: 2.0, preDelay: 0.1, wet: 0.3 }).toDestination();
-
-const synth = new Tone.Sampler({
-    urls: {
-        "F#2": "Fs2.mp3",
-        "F#3": "Fs3.mp3",
-        "F#4": "Fs4.mp3",
-        "F#5": "Fs5.mp3"
-    },
-    release: 1,
-    baseUrl: "https://tonejs.github.io/audio/guitar-acoustic/",
-    onload: () => {
-        console.log("✅ Sonidos cargados correctamente");
-        if(playBtn) {
-            playBtn.innerText = "REPRODUCIR";
-            playBtn.style.opacity = "1";
-            playBtn.disabled = false;
-        }
-    }
-}).connect(reverb);
-
-// --- 🔓 DESBLOQUEO DE AUDIO (CRÍTICO PARA MÓVILES) ---
-// Los móviles bloquean el audio hasta que tocas la pantalla.
-// Esto fuerza el inicio del motor de audio con el PRIMER clic en cualquier sitio.
-document.body.addEventListener('click', async () => {
-    if (Tone.context.state !== 'running') {
-        await Tone.start();
-        console.log("🔊 Motor de Audio Iniciado");
-    }
-}, { once: true });
-
-
-// --- FUNCIONES PRINCIPALES ---
-
-function build() {
-    fretboard.innerHTML = '';
-    const tVal = document.getElementById('tuning-select').value;
-    const t = tuning[tVal] || tuning['standard'];
+const notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+const chords = [{v:"major", n:"Mayor"}, {v:"minor", n:"Menor"}, {v:"7", n:"7ma"}, {v:"maj7", n:"Maj7"}, {v:"m7", n:"m7"}];
+const scales = [
+    // Las Básicas
+    {v:"major", n:"Mayor (Jónica)"},
+    {v:"minor", n:"Menor Natural (Eólica)"},
     
+    // Las Pentatónicas (Rock/Blues)
+    {v:"major pentatonic", n:"Pentatónica Mayor"},
+    {v:"minor pentatonic", n:"Pentatónica Menor"},
+    {v:"blues", n:"Escala Blues"},
+
+    // Los Modos Griegos (Jazz/Fusión)
+    {v:"dorian", n:"Dórica (Modo 2)"},
+    {v:"phrygian", n:"Frigia (Modo 3)"},
+    {v:"lydian", n:"Lidia (Modo 4)"},
+    {v:"mixolydian", n:"Mixolidia (Modo 5)"},
+    {v:"locrian", n:"Locria (Modo 7)"},
+
+    // Exóticas Importantes
+    {v:"harmonic minor", n:"Menor Armónica"},
+    {v:"melodic minor", n:"Menor Melódica"}
+];
+
+let currentTuning = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
+
+// Sintetizador de Guitarra
+const synth = new Tone.Sampler({
+    urls: { "A2": "A2.mp3", "C4": "C4.mp3" },
+    baseUrl: "https://tonejs.github.io/audio/guitar-acoustic/",
+}).toDestination();
+
+// Metrónomo
+let metroLoop;
+let isMetroPlaying = false;
+const metroSynth = new Tone.MembraneSynth({
+    pitchDecay: 0.05, octaves: 10, oscillator: { type: "sine" },
+    envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4, attackCurve: "exponential" }
+}).toDestination();
+metroSynth.volume.value = -10;
+
+function init() {
+    // 1. Llenar Selectores
+    const rootSel = document.getElementById('root-note');
+    notes.forEach(n => rootSel.innerHTML += `<option value="${n}">${n}</option>`);
+    
+    // 2. Eventos UI
+    document.getElementById('mode-type').addEventListener('change', updateSelectors);
+    document.getElementById('root-note').addEventListener('change', update);
+    document.getElementById('sub-type').addEventListener('change', update);
+    
+    document.getElementById('tuning-select').addEventListener('change', (e) => {
+        currentTuning = e.target.value === 'standard' ? ['E2','A2','D3','G3','B3','E4'] : ['D2','A2','D3','G3','B3','E4'];
+        buildFretboard();
+    });
+
+    // Modo Zurdo
+    document.getElementById('lefty-btn').addEventListener('click', (e) => {
+        const container = document.querySelector('.fretboard-container');
+        container.classList.toggle('lefty-mode');
+        e.target.innerText = container.classList.contains('lefty-mode') ? "Zurdo" : "Diestro";
+    });
+
+    // --- NUEVO: NAVEGACIÓN CON FLECHAS ---
+    const scroller = document.getElementById('scroller');
+    document.getElementById('scroll-left').addEventListener('click', () => {
+        scroller.scrollBy({ left: -200, behavior: 'smooth' });
+    });
+    document.getElementById('scroll-right').addEventListener('click', () => {
+        scroller.scrollBy({ left: 200, behavior: 'smooth' });
+    });
+
+    // --- LÓGICA METRÓNOMO ---
+    const bpmSlider = document.getElementById('bpm-slider');
+    const bpmDisplay = document.getElementById('bpm-display');
+    const metroBtn = document.getElementById('metro-btn');
+
+    bpmSlider.oninput = (e) => {
+        const val = e.target.value;
+        bpmDisplay.innerText = val;
+        Tone.Transport.bpm.value = val;
+    };
+
+    metroBtn.onclick = async () => {
+        if (Tone.context.state !== 'running') await Tone.start();
+        if (!isMetroPlaying) {
+            metroLoop = new Tone.Loop(time => {
+                metroSynth.triggerAttackRelease("C1", "8n", time);
+            }, "4n").start(0);
+            Tone.Transport.start();
+            metroBtn.classList.add('active');
+            isMetroPlaying = true;
+        } else {
+            Tone.Transport.stop();
+            if(metroLoop) { metroLoop.stop(); metroLoop.dispose(); }
+            metroBtn.classList.remove('active');
+            isMetroPlaying = false;
+        }
+    };
+
+    document.getElementById('play-btn').onclick = async () => {
+        if (Tone.context.state !== 'running') await Tone.start();
+        const activeNotes = Array.from(document.querySelectorAll('.note.active'));
+        const now = Tone.now();
+        activeNotes.forEach((noteDiv, i) => {
+            const noteName = noteDiv.dataset.full;
+            if(noteName) synth.triggerAttackRelease(noteName, "2n", now + (i * 0.05));
+        });
+    };
+
+    updateSelectors();
+    buildFretboard();
+}
+
+function updateSelectors() {
+    const isScale = document.getElementById('mode-type').value === 'scale';
+    const sub = document.getElementById('sub-type');
+    sub.innerHTML = '';
+    (isScale ? scales : chords).forEach(item => sub.innerHTML += `<option value="${item.v}">${item.n}</option>`);
+    update();
+}
+
+function buildFretboard() {
+    const fb = document.getElementById('fretboard');
+    fb.innerHTML = '';
+    
+    // Construir cuerdas
     for (let i = 5; i >= 0; i--) {
         const str = document.createElement('div');
         str.className = 'string';
+        str.id = `string-${i}`;
+        
         for (let f = 0; f <= 22; f++) {
-            // Nota: Pasamos el nombre de la nota entre comillas simples a la función play
-            const noteName = Tonal.Note.transpose(t[i], Tonal.Interval.fromSemitones(f));
-            const pc = Tonal.Note.pitchClass(noteName);
-            // IMPORTANTE: onclick llama a play() pasando el nombre de la nota
-            str.innerHTML += `<div class="fret"><div class="note" data-pc="${pc}" onclick="play('${noteName}')"></div></div>`;
+            const noteName = Tonal.Note.transpose(currentTuning[i], Tonal.Interval.fromSemitones(f));
+            str.innerHTML += `<div class="fret">
+                                <div class="note" 
+                                     data-pc="${Tonal.Note.pitchClass(noteName)}" 
+                                     data-full="${noteName}" 
+                                     onclick="playNote('${noteName}', ${i})">
+                                </div>
+                              </div>`;
         }
-        fretboard.appendChild(str);
+        fb.appendChild(str);
     }
+
+    // --- NUEVO: CONSTRUIR NÚMEROS EXTERNOS ---
+    buildFretNumbers();
     update();
+}
+
+// Nueva función para generar la fila de números debajo
+function buildFretNumbers() {
+    // Eliminar fila anterior si existe
+    const existingRow = document.querySelector('.fret-numbers-row');
+    if(existingRow) existingRow.remove();
+
+    const scroller = document.getElementById('scroller');
+    const numRow = document.createElement('div');
+    numRow.className = 'fret-numbers-row';
+
+    // Trastes clave para resaltar
+    const keyFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21];
+
+    for (let f = 0; f <= 22; f++) {
+        const numDiv = document.createElement('div');
+        numDiv.className = 'fret-number';
+        // Si es un traste clave, añadir clase extra
+        if (keyFrets.includes(f)) numDiv.classList.add('key-fret');
+        numDiv.innerText = f;
+        numRow.appendChild(numDiv);
+    }
+    scroller.appendChild(numRow);
 }
 
 function update() {
     const root = document.getElementById('root-note').value;
-    const type = document.getElementById('chord-type').value;
-    const view = document.getElementById('view-mode').value;
+    const mode = document.getElementById('mode-type').value;
+    const type = document.getElementById('sub-type').value;
     
-    if(!root || !type || typeof Tonal === 'undefined') return;
+    if(!Tonal) return;
 
-    const chord = Tonal.Chord.get(root + type);
-    
+    let data;
+    if (mode === 'chord') {
+        data = Tonal.Chord.get(root + type);
+    } else {
+        data = Tonal.Scale.get(`${root} ${type}`);
+    }
+
     document.querySelectorAll('.note').forEach(n => {
-        n.classList.remove('active');
-        const idx = chord.notes.indexOf(n.dataset.pc);
+        n.className = 'note';
+        n.innerText = '';
+        
+        const idx = data.notes.indexOf(n.dataset.pc);
         if (idx !== -1) {
             n.classList.add('active');
-            const interval = chord.intervals[idx];
-            n.dataset.interval = interval;
-            n.innerText = view === 'notes' ? n.dataset.pc : interval;
+            // Asignar color basado en la tónica
+            if(n.dataset.pc === root) n.classList.add('interval-1P');
+            else n.classList.add('interval-3M'); // Color genérico para el resto
+            
+            n.innerText = n.dataset.pc;
         }
     });
 }
 
-// Función para tocar una nota individual (al hacer clic en el traste)
-async function play(note) {
-    // Doble chequeo de seguridad para arrancar el audio
-    if (Tone.context.state !== 'running') {
-        await Tone.start();
-    }
-    
-    // Reproducir nota
-    // La duración "2n" da un sonido más largo y natural
-    try {
-        synth.triggerAttackRelease(note, "2n");
-    } catch (e) {
-        console.error("Error al reproducir:", e);
+async function playNote(note, sIdx) {
+    if (Tone.context.state !== 'running') await Tone.start();
+    synth.triggerAttackRelease(note, "1n");
+    const s = document.getElementById(`string-${sIdx}`);
+    if(s) {
+        s.classList.add('vibrating');
+        setTimeout(() => s.classList.remove('vibrating'), 300);
     }
 }
 
-
-// --- MODAL PREMIUM ---
-const modal = document.getElementById('premium-modal');
-const closeModal = document.getElementById('close-modal');
-const buyBtn = document.getElementById('buy-btn');
-
-function showPremiumModal() { modal.classList.add('active'); }
-if(closeModal) closeModal.onclick = () => modal.classList.remove('active');
-if(buyBtn) {
-    buyBtn.onclick = () => {
-        alert("¡Compra exitosa! Eres PRO.");
-        isPremium = true;
-        modal.classList.remove('active');
-        localStorage.setItem('arpeggio_status', 'premium');
-        location.reload(); 
-    };
-}
-window.resetPremium = function() {
-    localStorage.removeItem('arpeggio_status');
-    isPremium = false;
-    alert("Premium reseteado.");
-    location.reload();
-}
-
-// --- LISTENERS ---
-document.getElementById('tuning-select').addEventListener('change', (e) => {
-    if (e.target.value !== 'standard' && !isPremium) {
-        e.target.value = 'standard';
-        showPremiumModal();
-        return;
-    }
-    build();
-});
-
-document.getElementById('material-select').addEventListener('change', (e) => {
-    if (e.target.value !== 'ebony' && !isPremium) {
-        e.target.value = 'ebony';
-        scroller.className = 'fretboard-scroll ebony'; 
-        showPremiumModal();
-        return;
-    }
-    scroller.className = 'fretboard-scroll ' + e.target.value;
-});
-
-// Botón Reproducir (Arpegio completo)
-if(playBtn) {
-    playBtn.onclick = async () => {
-        if(Tone.context.state !== 'running') await Tone.start();
-        
-        const root = document.getElementById('root-note').value;
-        const chord = Tonal.Chord.get(root + document.getElementById('chord-type').value);
-        
-        const now = Tone.now();
-        chord.notes.forEach((n, i) => {
-            // Subimos octava para que suene brillante
-            synth.triggerAttackRelease(n + "3", "8n", now + i * 0.25);
-        });
-    };
-}
-
-document.getElementById('lefty-btn').onclick = (e) => {
-    fretboard.classList.toggle('lefty-mode');
-    e.target.innerText = fretboard.classList.contains('lefty-mode') ? "Zurdo" : "Diestro";
-};
-
-document.getElementById('root-note').onchange = update;
-document.getElementById('chord-type').onchange = update;
-document.getElementById('view-mode').onchange = update;
-
-function scrollF(dir) { 
-    scroller.scrollBy({ left: dir ? 300 : -300, behavior: 'smooth' }); 
-}
-
-// Iniciar
-window.addEventListener('load', () => {
-    build();
-});
+window.onload = init;
