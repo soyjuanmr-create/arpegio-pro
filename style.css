@@ -217,7 +217,7 @@ select option {
     position: relative;
 }
 
-/* --- MARCADORES DE TRASTES MEJORADOS (NÁCAR) --- */
+/* --- MARCADORES DE TRASTES MEJORADOS (NÁCAR SUTIL) --- */
 
 /* 1. Puntos Simples (3, 5, 7, 9, 15, 17, 19, 21) */
 .fret:nth-child(3)::after, .fret:nth-child(5)::after, 
@@ -225,33 +225,33 @@ select option {
 .fret:nth-child(15)::after, .fret:nth-child(17)::after,
 .fret:nth-child(19)::after, .fret:nth-child(21)::after {
     content: ""; position: absolute;
-    width: 24px; height: 24px; /* Tamaño grande realista */
+    width: 24px; height: 24px; 
     border-radius: 50%;
     
-    /* Gradiente Nácar (Blanco perlado) */
-    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e0e0e0 40%, #a3a3a3 100%);
+    /* Gradiente Nácar más sutil (más transparente) */
+    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.6) 0%, rgba(224, 224, 224, 0.4) 40%, rgba(163, 163, 163, 0.2) 100%);
     
-    /* Sombra para dar profundidad */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    z-index: -1; /* Debajo de las cuerdas */
+    /* Sombra más suave */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: -1; 
     pointer-events: none;
 }
 
-/* 2. Doble Punto (Traste 12) */
+/* 2. Doble Punto (Traste 12) - Reducido y ajustado */
 .fret:nth-child(12)::before, .fret:nth-child(12)::after {
     content: ""; position: absolute;
-    width: 24px; height: 24px;
+    width: 18px; height: 18px; /* Tamaño reducido */
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e0e0e0 40%, #a3a3a3 100%);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    /* El mismo gradiente sutil */
+    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.6) 0%, rgba(224, 224, 224, 0.4) 40%, rgba(163, 163, 163, 0.2) 100%);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: -1;
     pointer-events: none;
-    left: 50%; transform: translateX(-50%); /* Centrado horizontal */
+    left: 50%; transform: translateX(-50%);
 }
-/* Posicionamiento vertical de los dos puntos */
-.fret:nth-child(12)::before { top: 20%; } 
-.fret:nth-child(12)::after { bottom: 20%; }
-
+/* Posicionamiento vertical ajustado para el nuevo tamaño */
+.fret:nth-child(12)::before { top: 25%; } 
+.fret:nth-child(12)::after { bottom: 25%; }
 
 /* --- NOTAS INTERACTIVAS --- */
 .note {
