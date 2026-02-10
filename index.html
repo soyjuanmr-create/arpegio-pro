@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link rel="icon" type="image/png" href="icon.png">
 </head>
 <body>
 <div class="ambient-glow"></div>
@@ -36,13 +37,15 @@
     </header>
 
 <main class="fretboard-container relative-container">
-        <button id="scroll-left" class="nav-arrow left">‹</button>
-        
         <div id="scroller" class="fretboard-scroll ebony">
             <div id="fretboard" class="fretboard"></div>
             </div>
 
-        <button id="scroll-right" class="nav-arrow right">›</button>
+        <div class="nav-controls">
+            <button id="scroll-left" class="nav-arrow">‹</button>
+            <span class="nav-label">Navegar</span>
+            <button id="scroll-right" class="nav-arrow">›</button>
+        </div>
     </main>
 
     <footer class="bottom-bar glass-panel">
@@ -53,9 +56,28 @@
         <button id="play-btn"><span>REPRODUCIR</span></button>
         <div class="settings-group">
             <select id="tuning-select">
-                <option value="standard">Standard</option>
-                <option value="dropD">Drop D</option>
-            </select>
+    <optgroup label="Estándar">
+        <option value="standard">E Standard (Normal)</option>
+        <option value="halfStep">Eb Standard (Hendrix/SRV)</option>
+        <option value="dStd">D Standard (Motley Crue/Nirvana)</option>
+    </optgroup>
+    
+    <optgroup label="Drop (Rock/Metal)">
+        <option value="dropD">Drop D (Foo Fighters)</option>
+        <option value="dropCs">Drop C# (Deftones/Linkin Park)</option>
+        <option value="dropC">Drop C (System of a Down)</option>
+    </optgroup>
+    
+    <optgroup label="Abiertas (Blues/Slide)">
+        <option value="openG">Open G (Rolling Stones)</option>
+        <option value="openD">Open D (Dylan/Blues)</option>
+        <option value="openE">Open E (Allman Brothers)</option>
+    </optgroup>
+    
+    <optgroup label="Especiales">
+        <option value="dadgad">DADGAD (Led Zeppelin/Folk)</option>
+    </optgroup>
+</select>
             <button id="lefty-btn" class="icon-btn">Diestro</button>
         </div>
     </footer>

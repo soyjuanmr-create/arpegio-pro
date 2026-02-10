@@ -1,33 +1,52 @@
 const notes = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
-const chords = [{v:"major", n:"Mayor"}, {v:"minor", n:"Menor"}, {v:"7", n:"7ma"}, {v:"maj7", n:"Maj7"}, {v:"m7", n:"m7"}];
+const chords = [
+    {v:"major", n:"Mayor"}, {v:"minor", n:"Menor"}, 
+    {v:"7", n:"7ma"}, {v:"maj7", n:"Maj7"}, 
+    {v:"m7", n:"m7"}, {v:"dim", n:"Disminuido"}
+];
+
+// Lista ampliada de escalas PRO
 const scales = [
-    // Las Básicas
     {v:"major", n:"Mayor (Jónica)"},
-    {v:"minor", n:"Menor Natural (Eólica)"},
-    
-    // Las Pentatónicas (Rock/Blues)
+    {v:"minor", n:"Menor (Eólica)"},
     {v:"major pentatonic", n:"Pentatónica Mayor"},
     {v:"minor pentatonic", n:"Pentatónica Menor"},
-    {v:"blues", n:"Escala Blues"},
-
-    // Los Modos Griegos (Jazz/Fusión)
-    {v:"dorian", n:"Dórica (Modo 2)"},
-    {v:"phrygian", n:"Frigia (Modo 3)"},
-    {v:"lydian", n:"Lidia (Modo 4)"},
-    {v:"mixolydian", n:"Mixolidia (Modo 5)"},
-    {v:"locrian", n:"Locria (Modo 7)"},
-
-    // Exóticas Importantes
-    {v:"harmonic minor", n:"Menor Armónica"},
-    {v:"melodic minor", n:"Menor Melódica"}
+    {v:"blues", n:"Blues"},
+    {v:"dorian", n:"Dórica"},
+    {v:"phrygian", n:"Frigia"},
+    {v:"lydian", n:"Lidia"},
+    {v:"mixolydian", n:"Mixolidia"},
+    {v:"locrian", n:"Locria"},
+    {v:"harmonic minor", n:"Menor Armónica"}
 ];
 
 let currentTuning = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
 
-// Sintetizador de Guitarra
+// --- 1. CONFIGURACIÓN DE AUDIO (TONE.JS) ---
+const playBtn = document.getElementById('play-btn');
+if(playBtn) {
+    playBtn.innerText = "⏳ CARGANDO...";
+    playBtn.disabled = true;
+    playBtn.style.opacity = "0.5";
+}
+
 const synth = new Tone.Sampler({
-    urls: { "A2": "A2.mp3", "C4": "C4.mp3" },
+    urls: {
+        "A2": "A2.mp3",
+        "C4": "C4.mp3",
+        "E2": "E2.mp3",
+        "E4": "E4.mp3"
+    },
+    release: 1,
     baseUrl: "https://tonejs.github.io/audio/guitar-acoustic/",
+    onload: () => {
+        console.log("✅ Audio cargado");
+        if(playBtn) {
+            playBtn.innerText = "REPRODUCIR";
+            playBtn.disabled = false;
+            playBtn.style.opacity = "1";
+        }
+    }
 }).toDestination();
 
 // Metrónomo
@@ -39,16 +58,18 @@ const metroSynth = new Tone.MembraneSynth({
 }).toDestination();
 metroSynth.volume.value = -10;
 
+// --- 2. INICIALIZACIÓN ---
 function init() {
-    // 1. Llenar Selectores
+    // Llenar Selectores
     const rootSel = document.getElementById('root-note');
     notes.forEach(n => rootSel.innerHTML += `<option value="${n}">${n}</option>`);
     
-    // 2. Eventos UI
+    // Listeners
     document.getElementById('mode-type').addEventListener('change', updateSelectors);
     document.getElementById('root-note').addEventListener('change', update);
     document.getElementById('sub-type').addEventListener('change', update);
     
+    // Afinación
     document.getElementById('tuning-select').addEventListener('change', (e) => {
         currentTuning = e.target.value === 'standard' ? ['E2','A2','D3','G3','B3','E4'] : ['D2','A2','D3','G3','B3','E4'];
         buildFretboard();
@@ -61,7 +82,7 @@ function init() {
         e.target.innerText = container.classList.contains('lefty-mode') ? "Zurdo" : "Diestro";
     });
 
-    // --- NUEVO: NAVEGACIÓN CON FLECHAS ---
+    // Navegación (Flechas)
     const scroller = document.getElementById('scroller');
     document.getElementById('scroll-left').addEventListener('click', () => {
         scroller.scrollBy({ left: -200, behavior: 'smooth' });
@@ -70,7 +91,7 @@ function init() {
         scroller.scrollBy({ left: 200, behavior: 'smooth' });
     });
 
-    // --- LÓGICA METRÓNOMO ---
+    // Metrónomo UI
     const bpmSlider = document.getElementById('bpm-slider');
     const bpmDisplay = document.getElementById('bpm-display');
     const metroBtn = document.getElementById('metro-btn');
@@ -98,7 +119,8 @@ function init() {
         }
     };
 
-    document.getElementById('play-btn').onclick = async () => {
+    // Botón Reproducir
+    playBtn.onclick = async () => {
         if (Tone.context.state !== 'running') await Tone.start();
         const activeNotes = Array.from(document.querySelectorAll('.note.active'));
         const now = Tone.now();
@@ -120,11 +142,12 @@ function updateSelectors() {
     update();
 }
 
+// --- 3. CONSTRUCCIÓN DEL DIAPASÓN ---
 function buildFretboard() {
     const fb = document.getElementById('fretboard');
     fb.innerHTML = '';
     
-    // Construir cuerdas
+    // Cuerdas (de la 6 a la 1 visualmente si es tablatura, aquí usamos índices 5 a 0)
     for (let i = 5; i >= 0; i--) {
         const str = document.createElement('div');
         str.className = 'string';
@@ -143,14 +166,12 @@ function buildFretboard() {
         fb.appendChild(str);
     }
 
-    // --- NUEVO: CONSTRUIR NÚMEROS EXTERNOS ---
     buildFretNumbers();
     update();
 }
 
-// Nueva función para generar la fila de números debajo
+// Construir números inferiores (Alineados pero sin el 0)
 function buildFretNumbers() {
-    // Eliminar fila anterior si existe
     const existingRow = document.querySelector('.fret-numbers-row');
     if(existingRow) existingRow.remove();
 
@@ -158,15 +179,16 @@ function buildFretNumbers() {
     const numRow = document.createElement('div');
     numRow.className = 'fret-numbers-row';
 
-    // Trastes clave para resaltar
     const keyFrets = [3, 5, 7, 9, 12, 15, 17, 19, 21];
 
     for (let f = 0; f <= 22; f++) {
         const numDiv = document.createElement('div');
         numDiv.className = 'fret-number';
-        // Si es un traste clave, añadir clase extra
         if (keyFrets.includes(f)) numDiv.classList.add('key-fret');
-        numDiv.innerText = f;
+        
+        // TRUCO: Si es 0, texto vacío. Si no, el número.
+        numDiv.innerText = (f === 0) ? "" : f;
+        
         numRow.appendChild(numDiv);
     }
     scroller.appendChild(numRow);
@@ -193,9 +215,8 @@ function update() {
         const idx = data.notes.indexOf(n.dataset.pc);
         if (idx !== -1) {
             n.classList.add('active');
-            // Asignar color basado en la tónica
             if(n.dataset.pc === root) n.classList.add('interval-1P');
-            else n.classList.add('interval-3M'); // Color genérico para el resto
+            else n.classList.add('interval-3M');
             
             n.innerText = n.dataset.pc;
         }

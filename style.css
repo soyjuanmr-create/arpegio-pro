@@ -10,28 +10,24 @@
     --clr-root: #ff4757;
     --clr-third: #3742fa;
     --clr-fifth: #2ed573;
-    --clr-seventh: #ffa502;
 
     --fret-metal: linear-gradient(180deg, #555, #ccc 40%, #999 60%, #555);
-    /* Cuerdas bronce/oro (E, A, D) */
     --string-gold: linear-gradient(90deg, #4a3b2a, #d4af37, #ffecb3, #b8860b, #4a3b2a);
-    /* Cuerdas acero/plata (G, B, E) */
     --string-silver: linear-gradient(90deg, #222, #999, #eee, #777, #222);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { background-color: var(--bg-deep); color: white; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
 
-/* --- AMBIENTE --- */
+/* AMBIENTE */
 .ambient-glow {
     position: fixed; top: -20%; left: -20%; width: 140%; height: 140%;
     background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 70%);
     z-index: -1; pointer-events: none;
 }
-
 .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-/* --- HEADER --- */
+/* HEADER */
 .control-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -39,7 +35,6 @@ body { background-color: var(--bg-deep); color: white; font-family: 'Inter', san
     padding: 10px 15px;
     z-index: 100;
 }
-
 .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
 .logo-mark {
     background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
@@ -60,72 +55,39 @@ select {
     border: 1px solid rgba(255,255,255,0.15);
     color: #eee; padding: 8px 10px; border-radius: 8px;
     font-size: 12px; font-weight: 500; width: 100%;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23999%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat; background-position: right 8px center; background-size: 8px;
 }
 
-/* --- DIAPASÓN Y NAVEGACIÓN --- */
+/* --- DIAPASÓN Y SCROLL --- */
 .fretboard-container {
-    flex: 1; display: flex; align-items: center; overflow: hidden; position: relative;
+    flex: 1; display: flex; flex-direction: column; 
+    justify-content: center; 
+    overflow: hidden; position: relative;
+    padding-bottom: 20px;
 }
-.relative-container { position: relative; }
 
-/* FLECHAS DE NAVEGACIÓN */
-.nav-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.2);
-    width: 40px; height: 60px;
-    font-size: 24px;
-    z-index: 20;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-}
-.nav-arrow:hover { background: var(--primary-accent); }
-.nav-arrow.left { left: 10px; }
-.nav-arrow.right { right: 10px; }
-
-
-/* --- MODO ZURDO --- */
-/* Invertimos el contenedor del scroll */
-.fretboard-container.lefty-mode .fretboard-scroll { transform: scaleX(-1); }
-/* Volvemos a invertir textos y números para que se lean bien */
-.lefty-mode .note { transform: scaleX(-1); } 
-.lefty-mode .fret-number { transform: scaleX(-1); }
-
-
-/* --- SCROLLER Y FONDO (CORREGIDO) --- */
 .fretboard-scroll {
     width: 100%; overflow-x: auto; 
-    padding: 40px 60px; 
+    padding: 20px 0; 
     scrollbar-width: none;
     display: flex; flex-direction: column;
+    align-items: flex-start; 
 }
 .fretboard-scroll::-webkit-scrollbar { display: none; }
-
-/* IMPORTANTE: Fondo transparente en el scroll para que no sobre a la derecha */
 .fretboard-scroll.ebony { background: transparent; }
 
+/* EL MÁSTIL */
 .fretboard {
     display: flex; flex-direction: column; position: relative;
-    border-left: 12px solid #333; /* Cejuela */
     min-width: max-content;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-    
-    /* EL FONDO VA AQUÍ (Se corta en el traste 22) */
-    background: #111; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    background: #111;
+    margin-left: 20px; 
 }
 
+/* Cuerdas */
 .string { height: 42px; display: flex; position: relative; align-items: center; z-index: 1;}
 .string::after { content: ''; position: absolute; width: 100%; z-index: 2; pointer-events: none; box-shadow: 0 2px 4px rgba(0,0,0,0.5);}
 
-/* GROSORES Y COLORES (Corregido: 5, 4, 3 Doradas) */
 #string-5::after { height: 4.5px; background: var(--string-gold); } 
 #string-4::after { height: 3.8px; background: var(--string-gold); } 
 #string-3::after { height: 3.0px; background: var(--string-gold); } 
@@ -133,91 +95,132 @@ select {
 #string-1::after { height: 1.5px; background: var(--string-silver); } 
 #string-0::after { height: 1.0px; background: var(--string-silver); } 
 
-/* TRASTES (LIMPIO, SIN PUNTOS DENTRO) */
+/* --- TRASTES (Estructura Base) --- */
 .fret {
     width: 65px; min-width: 65px;
     height: 100%;
-    border-right: 3px solid transparent;
+    /* Borde real de metal */
+    border-right: 3px solid transparent; 
     border-image: var(--fret-metal) 1;
     display: flex; align-items: center; justify-content: center;
     position: relative;
 }
 .fret:nth-child(n+12) { min-width: 55px; width: 55px; }
 
+/* --- CEJUELA (TRASTE 0) MEJORADA --- */
+.fret:first-child {
+    background: #e3ddd5; /* Color Hueso */
+    min-width: 35px; width: 35px;
+    
+    /* Borde derecho de 5px */
+    border-right: 5px solid #222; 
+    border-image: none;
+    
+    z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
 
-/* --- NÚMEROS DE TRASTE EXTERNOS --- */
+/* NOTAS EN LA CEJUELA: "Por encima" (Z-Index alto) */
+.fret:first-child .note { 
+    border: 2px solid #555; 
+    color: white; 
+    transform: scale(0.9);
+    z-index: 20; /* Se asegura de estar CAPA SUPERIOR */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4); /* Sombra para que flote */
+}
+.fret:first-child .note.active { 
+    border-color: transparent; 
+    transform: scale(1); 
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* --- NÚMEROS DE TRASTE (ALINEACIÓN MATEMÁTICA) --- */
 .fret-numbers-row {
-    display: flex;
-    margin-top: 10px;
-    padding-left: 12px; /* Compensar cejuela */
-    min-width: max-content;
+    display: flex; margin-top: 10px; min-width: max-content;
+    margin-left: 20px; /* Igual que el diapasón */
 }
 
 .fret-number {
+    display: flex; justify-content: center; 
+    font-size: 11px; color: #666; font-weight: 700;
+    
     width: 65px; min-width: 65px;
-    text-align: center;
-    font-size: 10px; color: #777; font-weight: 700;
-    padding-top: 5px;
+    
+    /* TRUCO DE ALINEACIÓN: Borde transparente idéntico al de los trastes */
+    /* Esto obliga al número a centrarse en el mismo espacio exacto */
+    border-right: 3px solid transparent; 
+    box-sizing: border-box;
 }
-.fret-number:nth-child(n+13) { min-width: 55px; width: 55px; }
-.fret-number.key-fret { color: var(--primary-accent); font-size: 12px; }
 
+/* Ajuste para trastes agudos */
+.fret-number:nth-child(n+13) { 
+    min-width: 55px; width: 55px; 
+}
 
-/* --- NOTAS --- */
+/* HUECO DEL 0 (Invisible pero ocupa espacio) */
+.fret-number:first-child {
+    min-width: 35px; width: 35px;
+    /* Borde transparente idéntico a la cejuela */
+    border-right: 5px solid transparent; 
+}
+
+.fret-number.key-fret { color: var(--primary-accent); font-size: 13px; }
+
+/* --- CONTROLES DE NAVEGACIÓN --- */
+.nav-controls {
+    display: flex; justify-content: center; align-items: center; gap: 20px;
+    padding: 15px; margin-top: 5px;
+}
+.nav-arrow {
+    background: rgba(255,255,255,0.08); 
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white; width: 50px; height: 40px; 
+    border-radius: 20px; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.nav-arrow:active { background: var(--primary-accent); border-color: transparent; }
+.nav-label { font-size: 10px; text-transform: uppercase; color: #555; letter-spacing: 2px; }
+
+/* NOTAS */
 .note {
-    width: 26px; height: 26px; border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
     z-index: 10; font-size: 11px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
-    opacity: 0; 
-    transform: scale(0); 
-    transition: 0.2s;
+    opacity: 0; transform: scale(0); transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
-
-.note.active { 
-    opacity: 1; 
-    transform: scale(1); 
-    color: white; 
-}
-
-/* CORRECCIÓN ZURDO: Combina la escala normal con la inversión */
-.lefty-mode .note.active {
-    transform: scale(1) scaleX(-1);
-}
-
+.note.active { opacity: 1; transform: scale(1); color: white; }
 .interval-1P { background: var(--clr-root); box-shadow: 0 0 15px var(--clr-root); }
-.interval-3M, .interval-3m { background: var(--clr-third); }
-.interval-5P { background: var(--clr-fifth); }
-.interval-7M, .interval-7m { background: var(--clr-seventh); }
+.interval-3M { background: var(--clr-third); }
 
-/* --- FOOTER --- */
+/* MODO ZURDO FIX */
+.fretboard-container.lefty-mode .fretboard-scroll { transform: scaleX(-1); }
+.lefty-mode .note { transform: scaleX(-1); } 
+.lefty-mode .fret-numbers-row { transform: scaleX(-1); flex-direction: row-reverse; }
+.lefty-mode .fret-number { transform: scaleX(1); }
+
+/* FOOTER */
 .bottom-bar {
     background: #111; padding: 10px 15px;
     display: flex; justify-content: space-between; align-items: center;
     border-top: 1px solid #333; gap: 10px;
 }
-
 #play-btn {
     background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
     border: none; padding: 10px 20px; border-radius: 30px;
     color: white; font-weight: bold; font-size: 12px;
-    box-shadow: 0 4px 10px rgba(99,102,241,0.3);
 }
-#play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.metronome-zone { display: flex; align-items: center; gap: 8px; flex: 1; }
-
-/* CORRECCIÓN METRÓNOMO: Ancho flexible */
+#play-btn:disabled { opacity: 0.5; }
 #metro-btn {
     background: #222; border: 1px solid #444; color: #aaa;
-    min-width: 50px; width: auto; /* Flexible */
-    padding: 0 10px;
+    min-width: 50px; width: auto; padding: 0 10px;
     height: 36px; border-radius: 8px; font-size: 16px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
 }
 #metro-btn.active { background: #333; border-color: var(--secondary-accent); color: white; }
-
 .settings-group { display: flex; gap: 5px; }
 .icon-btn { background: #222; border: 1px solid #333; color: white; padding: 8px; border-radius: 6px; font-size: 11px; }
 
