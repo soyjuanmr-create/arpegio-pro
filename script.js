@@ -50,23 +50,90 @@ const scales = [
 
 let currentTuning = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
 
-// --- CONFIGURACIÓN DE AUDIO ---
+// --- CONFIGURACIÓN DE AUDIO OPTIMIZADA ---
 const playBtn = document.getElementById('play-btn');
-if(playBtn) { playBtn.disabled = true; }
+if(playBtn) { 
+    playBtn.disabled = true;
+    playBtn.innerHTML = '<span class="play-icon">⏳</span>'; // Indicador visual de carga
+}
 
-const synth = new Tone.Sampler({
-    urls: { "A2":"A2.mp3", "C4":"C4.mp3", "E2":"E2.mp3", "E4":"E4.mp3" },
-    release: 1,
-    baseUrl: "https://tonejs.github.io/audio/guitar-acoustic/",
-    onload: () => {
-        console.log("✅ Audio Loaded");
-        if(playBtn) {
-            playBtn.disabled = false;
-            playBtn.style.color = '#2ed573';
-            setTimeout(() => playBtn.style.color = '', 1000);
-        }
+// ⚡ OPTIMIZACIÓN 1: Usar PolySynth en lugar de Sampler para carga instantánea
+let synth;
+let audioLoaded = false;
+let audioLoadingStarted = false;
+
+// Función para inicializar audio
+function initAudio() {
+    if (audioLoadingStarted) return;
+    audioLoadingStarted = true;
+
+    // Mostrar mensaje de carga
+    console.log("🎸 Cargando audio...");
+    
+    // ⚡ OPTIMIZACIÓN 2: Usar síntesis en tiempo real (instantáneo) como fallback
+    // En lugar de esperar samples externos
+    synth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: {
+            type: "triangle"
+        },
+        envelope: {
+            attack: 0.005,
+            decay: 0.3,
+            sustain: 0.4,
+            release: 1.2
+        },
+        volume: -8
+    }).toDestination();
+
+    // Habilitar botón inmediatamente con synth básico
+    if(playBtn) {
+        playBtn.disabled = false;
+        playBtn.innerHTML = '<span class="play-icon">▶</span>';
+        playBtn.style.color = '#2ed573';
+        setTimeout(() => playBtn.style.color = '', 1000);
     }
-}).toDestination();
+    audioLoaded = true;
+    console.log("✅ Audio listo (modo synth)");
+
+    // ⚡ OPTIMIZACIÓN 3: Cargar samples de guitarra en segundo plano (lazy loading)
+    // Solo si el usuario realmente los usa
+    setTimeout(() => {
+        loadGuitarSamples();
+    }, 2000); // Cargar después de 2 segundos
+}
+
+// Función para cargar samples reales de guitarra (opcional/lazy)
+function loadGuitarSamples() {
+    console.log("🎸 Cargando samples de guitarra...");
+    
+    const guitarSampler = new Tone.Sampler({
+        urls: { 
+            "A2":"A2.mp3", 
+            "C4":"C4.mp3", 
+            "E2":"E2.mp3", 
+            "E4":"E4.mp3" 
+        },
+        release: 1,
+        baseUrl: "https://tonejs.github.io/audio/guitar-acoustic/",
+        onload: () => {
+            console.log("✅ Samples de guitarra cargados");
+            // Reemplazar synth con sampler
+            if(synth) {
+                synth.dispose();
+            }
+            synth = guitarSampler;
+            // Feedback visual opcional
+            if(playBtn) {
+                playBtn.style.boxShadow = '0 0 20px rgba(46, 213, 115, 0.5)';
+                setTimeout(() => playBtn.style.boxShadow = '', 1000);
+            }
+        },
+        onerror: (error) => {
+            console.warn("⚠️ No se pudieron cargar samples de guitarra, usando synth", error);
+            // Mantener el synth básico que ya funciona
+        }
+    }).toDestination();
+}
 
 // Metrónomo
 let metroLoop;
@@ -149,13 +216,27 @@ function init() {
         }
     };
 
+    // ⚡ OPTIMIZACIÓN 4: Cargar audio solo al primer click (user interaction required)
     playBtn.onclick = async () => {
+        // Inicializar audio en el primer click (requerido por navegadores)
+        if (!audioLoaded) {
+            await Tone.start();
+            initAudio();
+            // Esperar un momento para que el synth esté listo
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
         if (Tone.context.state !== 'running') await Tone.start();
+        
         const activeNotes = Array.from(document.querySelectorAll('.note.active'));
         const now = Tone.now();
+        
+        // ⚡ OPTIMIZACIÓN 5: Usar triggerAttackRelease en lugar de múltiples triggers
         activeNotes.forEach((noteDiv, i) => {
             const noteName = noteDiv.dataset.full;
-            if(noteName) synth.triggerAttackRelease(noteName, "2n", now + (i * 0.05));
+            if(noteName && synth) {
+                synth.triggerAttackRelease(noteName, "2n", now + (i * 0.05));
+            }
         });
     };
 
@@ -166,6 +247,20 @@ function init() {
         buildFretboard();
         update();
     }
+
+    // ⚡ OPTIMIZACIÓN 6: Pre-cargar audio al mover el mouse sobre el botón play
+    playBtn.addEventListener('mouseenter', () => {
+        if (!audioLoadingStarted) {
+            initAudio();
+        }
+    }, { once: true });
+
+    // También cargar al hacer scroll (usuario está explorando)
+    window.addEventListener('scroll', () => {
+        if (!audioLoadingStarted) {
+            initAudio();
+        }
+    }, { once: true, passive: true });
 }
 
 function loadStateFromURL() {
@@ -195,7 +290,6 @@ function updateUrlState(root, mode, type, typeName) {
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState({}, '', newUrl);
 
-    // FIX: Ahora dice "Arpeggio" en el título en vez de "Chord"
     const modeLabel = mode === 'scale' ? 'Scale' : 'Arpeggio';
     document.title = `${root} ${typeName} (${modeLabel}) | Arpeggio Pro`;
 }
@@ -254,7 +348,6 @@ function update() {
 
     let data;
     if (mode === 'chord') {
-        // Obtenemos los datos del acorde (que visualmente es un arpegio)
         data = Tonal.Chord.get(root + type);
     } else {
         data = Tonal.Scale.get(`${root} ${type}`);
@@ -263,7 +356,6 @@ function update() {
     updateUrlState(root, mode, type, typeName);
 
     const labelDiv = document.getElementById('chord-label');
-    // Si es modo acorde, añadimos "Arpeggio" al título visible
     if(labelDiv) {
         labelDiv.innerText = `${root} ${typeName}`;
     }
@@ -281,12 +373,24 @@ function update() {
 }
 
 async function playNote(note, sIdx) {
+    // Inicializar audio si aún no está cargado
+    if (!audioLoaded) {
+        await Tone.start();
+        initAudio();
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     if (Tone.context.state !== 'running') await Tone.start();
-    synth.triggerAttackRelease(note, "1n");
+    
+    if(synth) {
+        synth.triggerAttackRelease(note, "1n");
+    }
+    
     const s = document.getElementById(`string-${sIdx}`);
     if(s) {
         s.classList.add('vibrating');
         setTimeout(() => s.classList.remove('vibrating'), 300);
     }
 }
+
 window.onload = init;
