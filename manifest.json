@@ -1,14 +1,18 @@
 {
-  "name": "Arpeggio Pro Ultra",
+  "name": "Arpeggio Pro",
   "short_name": "ArpeggioPro",
   "id": "/index.html",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050505",
   "theme_color": "#050505",
-  "description": "Interactive guitar scale and arpeggio visualizer with real audio, multiple tunings, and offline mode.",
+  "description": "Interactive guitar scale and arpeggio visualizer with built-in metronome, multiple tunings, and offline mode.",
   "orientation": "portrait",
-  "categories": ["music", "education", "utilities"],
+  "categories": [
+    "music",
+    "education",
+    "utilities"
+  ],
   "lang": "en",
   "icons": [
     {
@@ -40,10 +44,10 @@
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any" 
+      "purpose": "any"
     },
     {
-      "src": "icons/icon-maskable-512.png", 
+      "src": "icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

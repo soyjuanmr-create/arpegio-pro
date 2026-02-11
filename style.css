@@ -27,67 +27,159 @@ body { background-color: var(--bg-deep); color: white; font-family: 'Inter', san
 }
 .app-container { display: flex; flex-direction: column; height: 100vh; }
 
-/* HEADER */
+/* ========================================
+   HEADER OPTIMIZADO - COMPACTO
+======================================== */
 .control-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--glass-border);
-    padding: 15px 20px;
+    padding: 12px 16px;
     z-index: 100;
 }
-.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+
+.brand { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 10px;
+}
+
 .logo-mark {
     background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-    width: 28px; height: 28px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-weight: 800; 
+    font-size: 11px;
 }
-h1 { font-size: 16px; font-weight: 700; }
+
+h1 { 
+    font-size: 15px;
+    font-weight: 700; 
+}
 h1 span { color: var(--primary-accent); }
 
-.controls-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-.control-group { display: flex; flex-direction: column; gap: 6px; }
-label { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 0.5px; }
+/* FILA 1: Root, Mode, Type */
+.controls-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* FILA 2: Tuning + Handedness */
+.settings-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+}
+
+.control-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px;
+}
+
+label { 
+    font-size: 9px;
+    text-transform: uppercase; 
+    color: #888; 
+    font-weight: 700; 
+    letter-spacing: 0.5px; 
+}
 
 select {
-    appearance: none; -webkit-appearance: none;
+    appearance: none; 
+    -webkit-appearance: none;
     background: #18181b;
     border: 1px solid rgba(255,255,255,0.15);
-    color: #eee; padding: 10px 12px; border-radius: 8px;
-    font-size: 13px; font-weight: 500; width: 100%;
+    color: #eee; 
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500; 
+    width: 100%;
     transition: 0.2s;
     cursor: pointer;
 }
 select:hover { border-color: var(--primary-accent); }
 
-/* --- TÍTULO (CHORD LABEL) --- */
-.chord-label {
+/* Botón de Handedness */
+.hand-toggle-btn {
+    background: #18181b;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #eee;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     width: 100%;
-    text-align: center;
-    margin-top: 40px;    
-    margin-bottom: 30px; 
-    font-size: 32px;
-    font-weight: 800;
-    text-transform: capitalize;
-    letter-spacing: 1px;
-    color: white;
-    text-shadow: 0 0 20px var(--primary-accent);
-    transition: all 0.3s ease;
 }
 
-/* DIAPASÓN */
+.hand-toggle-btn:hover {
+    border-color: var(--primary-accent);
+    background: #222;
+}
+
+.hand-toggle-btn:active {
+    transform: scale(0.98);
+}
+
+.hand-icon {
+    font-size: 14px;
+}
+
+.hand-text {
+    font-size: 12px;
+}
+
+/* Indicador compacto de escala (solo desktop) */
+.scale-indicator {
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+    font-weight: 600;
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .scale-indicator {
+        display: block;
+    }
+}
+
+/* ========================================
+   DIAPASÓN - OPTIMIZADO
+======================================== */
 .fretboard-container {
-    flex: 1; display: flex; flex-direction: column; 
-    justify-content: flex-start; 
-    overflow: hidden; position: relative;
-    padding-bottom: 20px;
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-start; /* Pegado arriba */
+    overflow: hidden; 
+    position: relative;
+    padding-top: 40px; /* Espaciado ajustado desde header */
+    padding-bottom: 10px;
 }
 
 .fretboard-scroll {
-    width: 100%; overflow-x: auto; 
+    width: 100%; 
+    overflow-x: auto; 
     padding: 10px 0; 
     scrollbar-width: none; 
-    display: flex; flex-direction: column;
+    display: flex; 
+    flex-direction: column;
     align-items: flex-start; 
     -webkit-overflow-scrolling: touch; 
     overscroll-behavior-x: contain;    
@@ -98,7 +190,9 @@ select:hover { border-color: var(--primary-accent); }
 .fretboard-scroll.ebony { background: transparent; }
 
 .fretboard {
-    display: flex; flex-direction: column; position: relative;
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
     min-width: max-content;
     box-shadow: 0 15px 40px rgba(0,0,0,0.7);
     background: #111;
@@ -108,8 +202,21 @@ select:hover { border-color: var(--primary-accent); }
 }
 
 /* Cuerdas */
-.string { height: 42px; display: flex; position: relative; align-items: center; z-index: 1;}
-.string::after { content: ''; position: absolute; width: 100%; z-index: 2; pointer-events: none; box-shadow: 0 2px 4px rgba(0,0,0,0.5);}
+.string { 
+    height: 42px; 
+    display: flex; 
+    position: relative; 
+    align-items: center; 
+    z-index: 1;
+}
+.string::after { 
+    content: ''; 
+    position: absolute; 
+    width: 100%; 
+    z-index: 2; 
+    pointer-events: none; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
 #string-5::after { height: 4.5px; background: var(--string-gold); } 
 #string-4::after { height: 3.8px; background: var(--string-gold); } 
 #string-3::after { height: 3.0px; background: var(--string-gold); } 
@@ -119,27 +226,56 @@ select:hover { border-color: var(--primary-accent); }
 
 /* Trastes */
 .fret {
-    width: 65px; min-width: 65px; height: 100%;
+    width: 65px; 
+    min-width: 65px; 
+    height: 100%;
     border-right: 3px solid transparent; 
     border-image: var(--fret-metal) 1;
-    display: flex; align-items: center; justify-content: center; position: relative;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative;
 }
 .fret:nth-child(n+12) { min-width: 55px; width: 55px; }
 .fret:first-child {
-    background: #e3ddd5; min-width: 35px; width: 35px;
-    border-right: 5px solid #222; border-image: none; z-index: 2;
+    background: #e3ddd5; 
+    min-width: 35px; 
+    width: 35px;
+    border-right: 5px solid #222; 
+    border-image: none; 
+    z-index: 2;
 }
-.fret:first-child .note { border: 2px solid #555; color: white; transform: scale(0.9); z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.4); }
-.fret:first-child .note.active { border-color: transparent; transform: scale(1); box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+.fret:first-child .note { 
+    border: 2px solid #555; 
+    color: white; 
+    transform: scale(0.9); 
+    z-index: 20; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4); 
+}
+.fret:first-child .note.active { 
+    border-color: transparent; 
+    transform: scale(1); 
+    box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+}
 
 /* Números */
 .fret-numbers-row {
-    display: flex; margin-top: 10px; min-width: max-content;
-    margin-left: auto; margin-right: auto;
+    display: flex; 
+    margin-top: 10px; 
+    min-width: max-content;
+    margin-left: auto; 
+    margin-right: auto;
 }
 .fret-number {
-    display: flex; justify-content: center; font-size: 11px; color: #666; font-weight: 700;
-    width: 65px; min-width: 65px; border-right: 3px solid transparent; box-sizing: border-box;
+    display: flex; 
+    justify-content: center; 
+    font-size: 11px; 
+    color: #666; 
+    font-weight: 700;
+    width: 65px; 
+    min-width: 65px; 
+    border-right: 3px solid transparent; 
+    box-sizing: border-box;
 }
 .fret-number:nth-child(n+13) { min-width: 55px; width: 55px; }
 .fret-number:first-child { min-width: 35px; width: 35px; border-right: 5px solid transparent; }
@@ -147,16 +283,38 @@ select:hover { border-color: var(--primary-accent); }
 
 /* CONTROLES NAVEGACIÓN */
 .nav-controls {
-    display: flex; justify-content: center; align-items: center; gap: 20px;
-    padding: 15px; margin-top: 5px; opacity: 0.7;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 20px;
+    padding: 10px;
+    margin-top: 5px; 
+    opacity: 0.7;
 }
 .nav-arrow {
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
-    color: white; width: 50px; height: 40px; border-radius: 20px; font-size: 20px; 
-    cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    background: rgba(255,255,255,0.08); 
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white; 
+    width: 50px; 
+    height: 40px; 
+    border-radius: 20px; 
+    font-size: 20px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: 0.2s;
 }
-.nav-arrow:active { background: var(--primary-accent); border-color: transparent; }
-.nav-label { font-size: 10px; text-transform: uppercase; color: #555; letter-spacing: 2px; }
+.nav-arrow:active { 
+    background: var(--primary-accent); 
+    border-color: transparent; 
+}
+.nav-label { 
+    font-size: 10px; 
+    text-transform: uppercase; 
+    color: #555; 
+    letter-spacing: 2px; 
+}
 
 /* Ocultar flechas en PC */
 @media (min-width: 1024px) {
@@ -165,32 +323,49 @@ select:hover { border-color: var(--primary-accent); }
 
 /* NOTAS */
 .note {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(255,255,255,0.15); z-index: 10; font-size: 11px; font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; transform: scale(0); transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.8); cursor: pointer;
+    width: 28px; 
+    height: 28px; 
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15); 
+    z-index: 10; 
+    font-size: 11px; 
+    font-weight: 800;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    opacity: 0; 
+    transform: scale(0); 
+    transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
-.note.active { opacity: 1; transform: scale(1); color: white; }
-.interval-1P { background: var(--clr-root); box-shadow: 0 0 15px var(--clr-root); }
-.interval-3M { background: var(--clr-third); }
+.note.active { 
+    opacity: 1; 
+    transform: scale(1); 
+    color: white; 
+}
+.interval-1P    { background: var(--clr-root);  box-shadow: 0 0 15px var(--clr-root); }
+.interval-3rd   { background: #3742fa; }
+.interval-5th   { background: #2ed573; }
+.interval-7th   { background: #a855f7; }
+.interval-other { background: #f59e0b; }
 
-/* --- THE FLOATING COMMAND DECK (iOS Style) --- */
-
+/* ========================================
+   METRÓNOMO FLOTANTE
+======================================== */
 .command-deck-container {
     position: fixed;
-    bottom: 30px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     width: 95%;
-    max-width: 500px;
+    max-width: 600px;
     z-index: 1000;
     display: flex;
     justify-content: center;
     pointer-events: none;
 }
 
-.glass-deck {
+.glass-deck-metronome {
     pointer-events: auto;
     background: rgba(28, 28, 30, 0.65);
     backdrop-filter: blur(25px);
@@ -199,159 +374,312 @@ select:hover { border-color: var(--primary-accent); }
     box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.4),
         0 0 0 1px rgba(0, 0, 0, 0.5);
-    border-radius: 32px;
-    padding: 8px 12px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
+    border-radius: 20px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
     gap: 12px;
     width: 100%;
 }
 
-/* --- SECCIÓN 1: RITMO (Metrónomo Corregido) --- */
-.rhythm-section {
+/* Beat Indicators */
+.beat-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.beat-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.1s ease;
+}
+
+.beat-indicator.active {
+    background: var(--secondary-accent);
+    box-shadow: 0 0 15px var(--secondary-accent);
+    transform: scale(1.3);
+}
+
+/* Controles Principales - CENTRADO EN DESKTOP */
+.metro-main-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* CENTRADO por defecto (desktop) */
+    gap: 16px; /* Más espacio entre botón y BPM */
+}
+
+.metro-main-btn {
+    background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
+    border: none;
+    border-radius: 14px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 4px; /* Ajuste fino */
-    border-radius: 24px;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.deck-btn {
-    background: #2C2C2E;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    height: 36px;
-    
-    /* FIX: Ancho y alineación */
-    min-width: 65px; 
-    padding: 0 12px; 
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centrado perfecto */
-    gap: 6px; 
-    
-    font-weight: 600;
-    font-size: 13px;
     cursor: pointer;
-    transition: transform 0.1s, background 0.2s;
-}
-.deck-btn:active { transform: scale(0.92); }
-.deck-btn.active { 
-    background: var(--secondary-accent); 
-    box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.bpm-readout {
-    margin-left: 0; /* Ya no hace falta margen extra */
-    font-variant-numeric: tabular-nums; /* Números monoespaciados */
-    width: 24px; /* Espacio reservado fijo */
-    text-align: center;
+.metro-main-btn:active {
+    transform: scale(0.95);
+}
+
+.metro-main-btn.active {
+    background: var(--clr-fifth);
+    box-shadow: 0 0 20px rgba(46, 213, 115, 0.5);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+.metro-icon {
+    font-size: 18px;
+}
+
+.metro-label {
+    color: white;
     font-size: 13px;
-    color: #eee;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.slider-wrapper {
-    width: 40px;
+.bpm-display-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 16px;
+    border-radius: 12px;
 }
+
+.bpm-value {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--primary-accent);
+    line-height: 1;
+}
+
+.bpm-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+/* Slider Section */
+.metro-slider-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #666;
+    padding: 0 4px;
+}
+
 #bpm-slider {
     width: 100%;
-    height: 4px;
-    border-radius: 2px;
+    height: 5px;
+    border-radius: 3px;
     background: #48484A;
     -webkit-appearance: none;
+    appearance: none;
+    outline: none;
 }
+
 #bpm-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    height: 12px; width: 12px;
+    appearance: none;
+    height: 16px;
+    width: 16px;
     border-radius: 50%;
-    background: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-/* --- SECCIÓN 2: PLAY --- */
-.action-section {
-    display: flex;
-    justify-content: center;
-}
-
-.hero-play-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
     background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
-    color: white;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 
-        0 8px 20px rgba(99, 102, 241, 0.4),
-        inset 0 1px 0 rgba(255,255,255,0.3);
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 10;
-    margin-top: -20px;
-}
-.hero-play-btn:active:not(:disabled) { transform: scale(0.9); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
-.play-icon { margin-left: 3px; }
-
-.hero-play-btn:disabled {
-    background: #3A3A3C;
-    color: #8E8E93;
-    box-shadow: none;
-    cursor: wait;
-    animation: pulseGray 1.5s infinite;
-}
-@keyframes pulseGray { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-
-/* --- SECCIÓN 3: AJUSTES --- */
-.settings-section {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    transition: transform 0.1s;
 }
 
-.ios-select-wrapper {
-    position: relative;
-    background: #2C2C2E;
-    border-radius: 18px;
-    height: 36px;
-    width: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+#bpm-slider::-webkit-slider-thumb:active {
+    transform: scale(1.2);
 }
-.select-icon { font-size: 14px; pointer-events: none; }
 
-.ios-select-wrapper select {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    opacity: 0;
+#bpm-slider::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));
     cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    border: none;
 }
 
-.small-text-btn {
+/* Preset BPMs */
+.preset-bpms {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.bpm-preset {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    padding: 5px 12px;
+    border-radius: 8px;
     font-size: 10px;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
     text-transform: uppercase;
-    padding: 0 10px;
-    color: #8E8E93;
-    background: rgba(44, 44, 46, 0.5);
+    letter-spacing: 0.5px;
 }
-.small-text-btn:hover { color: white; background: #3A3A3C; }
 
-/* RESPONSIVE */
-@media (max-width: 380px) {
-    .glass-deck { gap: 8px; padding: 8px; }
-    .hero-play-btn { width: 48px; height: 48px; margin-top: -15px; font-size: 18px; }
-    .slider-wrapper { width: 30px; }
-    .bpm-readout { font-size: 11px; }
+.bpm-preset:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-color: var(--primary-accent);
+}
+
+.bpm-preset:active {
+    transform: scale(0.95);
+}
+
+/* Time Signature */
+.time-sig-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 10px;
+    border-radius: 12px;
+}
+
+.time-sig-section label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 0.5px;
+}
+
+.time-sig-section select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+@media (max-width: 480px) {
+    .control-panel {
+        padding: 10px 12px;
+    }
+
+    .controls-grid,
+    .settings-row {
+        gap: 8px;
+    }
+
+    select,
+    .hand-toggle-btn {
+        padding: 7px 8px;
+        font-size: 11px;
+    }
+
+    .glass-deck-metronome {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    /* EN MÓVIL: Controles verticales y centrados */
+    .metro-main-controls {
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .metro-main-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .bpm-display-container {
+        width: 100%;
+    }
+
+    .preset-bpms {
+        flex-wrap: wrap;
+    }
+
+    .bpm-value {
+        font-size: 24px;
+    }
+
+    /* Diapasón más arriba en móvil */
+    .fretboard-container {
+        padding-top: 10px;
+    }
+}
+
+@media (min-width: 768px) {
+    .command-deck-container {
+        max-width: 700px;
+    }
+
+    .glass-deck-metronome {
+        padding: 20px;
+    }
+
+    .control-panel {
+        padding: 14px 20px;
+    }
+
+    /* Más espacio entre botones en desktop */
+    .metro-main-controls {
+        gap: 24px;
+    }
+}
+
+/* ========================================
+   MODO LEFTY (Left-handed)
+======================================== */
+.fretboard-container.lefty-mode .fretboard {
+    transform: scaleX(-1);
+}
+
+.fretboard-container.lefty-mode .note {
+    transform: scaleX(-1) scale(0);
+}
+
+.fretboard-container.lefty-mode .note.active {
+    transform: scaleX(-1) scale(1);
+}
+
+.fretboard-container.lefty-mode .fret-numbers-row {
+    transform: scaleX(-1);
+}
+
+.fretboard-container.lefty-mode .fret-number {
+    transform: scaleX(-1);
 }

@@ -50,99 +50,40 @@ const scales = [
 
 let currentTuning = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
 
-// --- CONFIGURACIÓN DE AUDIO OPTIMIZADA ---
-const playBtn = document.getElementById('play-btn');
-if(playBtn) { 
-    playBtn.disabled = true;
-    playBtn.innerHTML = '<span class="play-icon">⏳</span>'; // Indicador visual de carga
-}
-
-// ⚡ OPTIMIZACIÓN 1: Usar PolySynth en lugar de Sampler para carga instantánea
-let synth;
-let audioLoaded = false;
-let audioLoadingStarted = false;
-
-// Función para inicializar audio
-function initAudio() {
-    if (audioLoadingStarted) return;
-    audioLoadingStarted = true;
-
-    // Mostrar mensaje de carga
-    console.log("🎸 Cargando audio...");
-    
-    // ⚡ OPTIMIZACIÓN 2: Usar síntesis en tiempo real (instantáneo) como fallback
-    // En lugar de esperar samples externos
-    synth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: {
-            type: "triangle"
-        },
-        envelope: {
-            attack: 0.005,
-            decay: 0.3,
-            sustain: 0.4,
-            release: 1.2
-        },
-        volume: -8
-    }).toDestination();
-
-    // Habilitar botón inmediatamente con synth básico
-    if(playBtn) {
-        playBtn.disabled = false;
-        playBtn.innerHTML = '<span class="play-icon">▶</span>';
-        playBtn.style.color = '#2ed573';
-        setTimeout(() => playBtn.style.color = '', 1000);
-    }
-    audioLoaded = true;
-    console.log("✅ Audio listo (modo synth)");
-
-    // ⚡ OPTIMIZACIÓN 3: Cargar samples de guitarra en segundo plano (lazy loading)
-    // Solo si el usuario realmente los usa
-    setTimeout(() => {
-        loadGuitarSamples();
-    }, 2000); // Cargar después de 2 segundos
-}
-
-// Función para cargar samples reales de guitarra (opcional/lazy)
-function loadGuitarSamples() {
-    console.log("🎸 Cargando samples de guitarra...");
-    
-    const guitarSampler = new Tone.Sampler({
-        urls: { 
-            "A2":"A2.mp3", 
-            "C4":"C4.mp3", 
-            "E2":"E2.mp3", 
-            "E4":"E4.mp3" 
-        },
-        release: 1,
-        baseUrl: "https://tonejs.github.io/audio/guitar-acoustic/",
-        onload: () => {
-            console.log("✅ Samples de guitarra cargados");
-            // Reemplazar synth con sampler
-            if(synth) {
-                synth.dispose();
-            }
-            synth = guitarSampler;
-            // Feedback visual opcional
-            if(playBtn) {
-                playBtn.style.boxShadow = '0 0 20px rgba(46, 213, 115, 0.5)';
-                setTimeout(() => playBtn.style.boxShadow = '', 1000);
-            }
-        },
-        onerror: (error) => {
-            console.warn("⚠️ No se pudieron cargar samples de guitarra, usando synth", error);
-            // Mantener el synth básico que ya funciona
-        }
-    }).toDestination();
-}
-
-// Metrónomo
+// --- METRÓNOMO MEJORADO ---
 let metroLoop;
 let isMetroPlaying = false;
-const metroSynth = new Tone.MembraneSynth({
-    pitchDecay: 0.05, octaves: 10, oscillator: { type: "sine" },
-    envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4, attackCurve: "exponential" }
+let currentBeat = 0;
+let timeSignature = 4; // 4/4 por defecto
+
+// Crear dos synths diferentes para beat fuerte y débil
+const metroSynthStrong = new Tone.MembraneSynth({
+    pitchDecay: 0.05,
+    octaves: 10,
+    oscillator: { type: "sine" },
+    envelope: { 
+        attack: 0.001, 
+        decay: 0.4, 
+        sustain: 0.01, 
+        release: 1.4, 
+        attackCurve: "exponential" 
+    }
 }).toDestination();
-metroSynth.volume.value = -10;
+metroSynthStrong.volume.value = -8;
+
+const metroSynthWeak = new Tone.MembraneSynth({
+    pitchDecay: 0.05,
+    octaves: 8,
+    oscillator: { type: "sine" },
+    envelope: { 
+        attack: 0.001, 
+        decay: 0.3, 
+        sustain: 0.01, 
+        release: 1.2, 
+        attackCurve: "exponential" 
+    }
+}).toDestination();
+metroSynthWeak.volume.value = -12;
 
 // --- INIT ---
 function init() {
@@ -174,10 +115,12 @@ function init() {
         buildFretboard();
     });
 
+    // Handedness toggle (nuevo botón)
     document.getElementById('lefty-btn').addEventListener('click', (e) => {
         const container = document.querySelector('.fretboard-container');
         container.classList.toggle('lefty-mode');
-        e.target.innerText = container.classList.contains('lefty-mode') ? "Lefty" : "Righty";
+        const textSpan = e.currentTarget.querySelector('.hand-text');
+        textSpan.innerText = container.classList.contains('lefty-mode') ? "Left" : "Right";
     });
 
     const scroller = document.getElementById('scroller');
@@ -188,57 +131,79 @@ function init() {
         scroller.scrollBy({ left: 200, behavior: 'smooth' });
     });
 
-    // Metrónomo
+    // --- METRÓNOMO MEJORADO ---
     const bpmSlider = document.getElementById('bpm-slider');
     const bpmDisplay = document.getElementById('bpm-display');
     const metroBtn = document.getElementById('metro-btn');
+    const timeSigSelect = document.getElementById('time-signature');
 
+    // Cambio de BPM
     bpmSlider.oninput = (e) => {
         const val = e.target.value;
         if(bpmDisplay) bpmDisplay.innerText = val;
         Tone.Transport.bpm.value = val;
     };
 
+    // Cambio de compás
+    if(timeSigSelect) {
+        timeSigSelect.addEventListener('change', (e) => {
+            timeSignature = parseInt(e.target.value);
+            // Actualizar indicadores visuales
+            updateBeatIndicators();
+            // Reiniciar el metrónomo si está sonando
+            if(isMetroPlaying) {
+                stopMetronome();
+                setTimeout(() => startMetronome(), 100);
+            }
+        });
+    }
+
+    // Click en botón de metrónomo
     metroBtn.onclick = async () => {
-        if (Tone.context.state !== 'running') await Tone.start();
+        if (Tone.context.state !== 'running') {
+            await Tone.start();
+        }
+        
         if (!isMetroPlaying) {
-            metroLoop = new Tone.Loop(time => {
-                metroSynth.triggerAttackRelease("C1", "8n", time);
-            }, "4n").start(0);
-            Tone.Transport.start();
-            metroBtn.classList.add('active');
-            isMetroPlaying = true;
+            startMetronome();
         } else {
-            Tone.Transport.stop();
-            if(metroLoop) { metroLoop.stop(); metroLoop.dispose(); }
-            metroBtn.classList.remove('active');
-            isMetroPlaying = false;
+            stopMetronome();
         }
     };
 
-    // ⚡ OPTIMIZACIÓN 4: Cargar audio solo al primer click (user interaction required)
-    playBtn.onclick = async () => {
-        // Inicializar audio en el primer click (requerido por navegadores)
-        if (!audioLoaded) {
-            await Tone.start();
-            initAudio();
-            // Esperar un momento para que el synth esté listo
-            await new Promise(resolve => setTimeout(resolve, 100));
+    // Tap tempo (doble click en el botón)
+    let lastTap = 0;
+    let tapTimes = [];
+    metroBtn.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        const now = Date.now();
+        
+        if (now - lastTap < 2000) { // Dentro de 2 segundos
+            tapTimes.push(now - lastTap);
+            
+            if (tapTimes.length >= 3) {
+                // Calcular BPM promedio
+                const avgInterval = tapTimes.reduce((a, b) => a + b) / tapTimes.length;
+                const bpm = Math.round(60000 / avgInterval);
+                
+                if (bpm >= 40 && bpm <= 220) {
+                    bpmSlider.value = bpm;
+                    bpmDisplay.innerText = bpm;
+                    Tone.Transport.bpm.value = bpm;
+                    
+                    // Feedback visual
+                    metroBtn.style.transform = 'scale(1.1)';
+                    setTimeout(() => metroBtn.style.transform = '', 100);
+                }
+                
+                tapTimes = [];
+            }
+        } else {
+            tapTimes = [];
         }
         
-        if (Tone.context.state !== 'running') await Tone.start();
-        
-        const activeNotes = Array.from(document.querySelectorAll('.note.active'));
-        const now = Tone.now();
-        
-        // ⚡ OPTIMIZACIÓN 5: Usar triggerAttackRelease en lugar de múltiples triggers
-        activeNotes.forEach((noteDiv, i) => {
-            const noteName = noteDiv.dataset.full;
-            if(noteName && synth) {
-                synth.triggerAttackRelease(noteName, "2n", now + (i * 0.05));
-            }
-        });
-    };
+        lastTap = now;
+    });
 
     loadStateFromURL(); 
     
@@ -248,19 +213,71 @@ function init() {
         update();
     }
 
-    // ⚡ OPTIMIZACIÓN 6: Pre-cargar audio al mover el mouse sobre el botón play
-    playBtn.addEventListener('mouseenter', () => {
-        if (!audioLoadingStarted) {
-            initAudio();
-        }
-    }, { once: true });
+    // Inicializar beat indicators
+    updateBeatIndicators();
+}
 
-    // También cargar al hacer scroll (usuario está explorando)
-    window.addEventListener('scroll', () => {
-        if (!audioLoadingStarted) {
-            initAudio();
+function updateBeatIndicators() {
+    const container = document.querySelector('.beat-indicators');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    for (let i = 0; i < timeSignature; i++) {
+        const indicator = document.createElement('div');
+        indicator.className = 'beat-indicator';
+        container.appendChild(indicator);
+    }
+}
+
+function startMetronome() {
+    currentBeat = 0;
+    
+    metroLoop = new Tone.Loop(time => {
+        // Beat fuerte en el primer tiempo
+        if (currentBeat === 0) {
+            metroSynthStrong.triggerAttackRelease("C2", "16n", time);
+        } else {
+            metroSynthWeak.triggerAttackRelease("C1", "16n", time);
         }
-    }, { once: true, passive: true });
+        
+        // Actualizar contador visual
+        Tone.Draw.schedule(() => {
+            updateMetronomeVisual(currentBeat);
+        }, time);
+        
+        currentBeat = (currentBeat + 1) % timeSignature;
+    }, "4n").start(0);
+    
+    Tone.Transport.start();
+    document.getElementById('metro-btn').classList.add('active');
+    isMetroPlaying = true;
+}
+
+function stopMetronome() {
+    Tone.Transport.stop();
+    if(metroLoop) { 
+        metroLoop.stop(); 
+        metroLoop.dispose(); 
+    }
+    document.getElementById('metro-btn').classList.remove('active');
+    isMetroPlaying = false;
+    currentBeat = 0;
+    
+    // Limpiar indicadores visuales
+    document.querySelectorAll('.beat-indicator').forEach(el => {
+        el.classList.remove('active');
+    });
+}
+
+function updateMetronomeVisual(beat) {
+    const indicators = document.querySelectorAll('.beat-indicator');
+    indicators.forEach((indicator, index) => {
+        if (index === beat) {
+            indicator.classList.add('active');
+        } else {
+            indicator.classList.remove('active');
+        }
+    });
 }
 
 function loadStateFromURL() {
@@ -292,6 +309,12 @@ function updateUrlState(root, mode, type, typeName) {
 
     const modeLabel = mode === 'scale' ? 'Scale' : 'Arpeggio';
     document.title = `${root} ${typeName} (${modeLabel}) | Arpeggio Pro`;
+
+    // Actualizar indicador compacto (solo desktop)
+    const indicator = document.getElementById('current-scale-indicator');
+    if (indicator) {
+        indicator.innerText = `${root} ${typeName}`;
+    }
 }
 
 function populateSubTypeOptions() {
@@ -313,7 +336,7 @@ function buildFretboard() {
         str.id = `string-${i}`;
         for (let f = 0; f <= 22; f++) {
             const noteName = Tonal.Note.transpose(currentTuning[i], Tonal.Interval.fromSemitones(f));
-            str.innerHTML += `<div class="fret"><div class="note" data-pc="${Tonal.Note.pitchClass(noteName)}" data-full="${noteName}" onclick="playNote('${noteName}', ${i})"></div></div>`;
+            str.innerHTML += `<div class="fret"><div class="note" data-pc="${Tonal.Note.pitchClass(noteName)}" data-full="${noteName}"></div></div>`;
         }
         fb.appendChild(str);
     }
@@ -355,42 +378,20 @@ function update() {
 
     updateUrlState(root, mode, type, typeName);
 
-    const labelDiv = document.getElementById('chord-label');
-    if(labelDiv) {
-        labelDiv.innerText = `${root} ${typeName}`;
-    }
-
     document.querySelectorAll('.note').forEach(n => {
         n.className = 'note'; n.innerText = '';
         const idx = data.notes.indexOf(n.dataset.pc);
         if (idx !== -1) {
             n.classList.add('active');
-            if(n.dataset.pc === root) n.classList.add('interval-1P');
-            else n.classList.add('interval-3M');
+            const interval = data.intervals[idx];
+            if (interval === '1P')                              n.classList.add('interval-1P');
+            else if (interval === '3m' || interval === '3M')   n.classList.add('interval-3rd');
+            else if (interval === '5P')                        n.classList.add('interval-5th');
+            else if (interval === '7m' || interval === '7M')   n.classList.add('interval-7th');
+            else                                                n.classList.add('interval-other');
             n.innerText = n.dataset.pc;
         }
     });
-}
-
-async function playNote(note, sIdx) {
-    // Inicializar audio si aún no está cargado
-    if (!audioLoaded) {
-        await Tone.start();
-        initAudio();
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    
-    if (Tone.context.state !== 'running') await Tone.start();
-    
-    if(synth) {
-        synth.triggerAttackRelease(note, "1n");
-    }
-    
-    const s = document.getElementById(`string-${sIdx}`);
-    if(s) {
-        s.classList.add('vibrating');
-        setTimeout(() => s.classList.remove('vibrating'), 300);
-    }
 }
 
 window.onload = init;
