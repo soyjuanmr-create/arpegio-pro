@@ -137,59 +137,57 @@
     </main>
 
     <!-- METRÓNOMO FLOTANTE -->
-    <footer class="command-deck-container">
-        <div class="glass-deck glass-deck-metronome">
-            
-            <!-- Beat Indicators -->
-            <div class="beat-indicators">
-                <div class="beat-indicator"></div>
-                <div class="beat-indicator"></div>
-                <div class="beat-indicator"></div>
-                <div class="beat-indicator"></div>
-            </div>
+    <footer class="command-deck-container" id="metro-footer">
+    <div class="glass-deck glass-deck-metronome">
+        
+        <div id="drawer-toggle" class="drawer-handle"></div>
 
-            <!-- Controles Metrónomo -->
-            <div class="metro-main-controls">
-                <button id="metro-btn" class="metro-main-btn" aria-label="Start/Stop Metronome">
-                    <span class="metro-icon">⏱️</span>
-                    <span class="metro-label">Metronome</span>
-                </button>
-                
-                <div class="bpm-display-container">
-                    <span id="bpm-display" class="bpm-value">120</span>
-                    <span class="bpm-label">BPM</span>
-                </div>
-            </div>
-
-            <!-- BPM Slider -->
-            <div class="metro-slider-section">
-                <div class="slider-labels">
-                    <span>40</span>
-                    <span>220</span>
-                </div>
-                <input type="range" id="bpm-slider" min="40" max="220" value="120" aria-label="BPM Control">
-                <div class="preset-bpms">
-                    <button class="bpm-preset" data-bpm="60">Slow</button>
-                    <button class="bpm-preset" data-bpm="100">Medium</button>
-                    <button class="bpm-preset" data-bpm="140">Fast</button>
-                </div>
-            </div>
-
-            <!-- Time Signature -->
-            <div class="time-sig-section">
-                <label>Time</label>
-                <select id="time-signature">
-                    <option value="2">2/4</option>
-                    <option value="3">3/4</option>
-                    <option value="4" selected>4/4</option>
-                    <option value="5">5/4</option>
-                    <option value="6">6/8</option>
-                    <option value="7">7/8</option>
-                </select>
-            </div>
-
+        <div class="beat-indicators">
+            <div class="beat-indicator"></div>
+            <div class="beat-indicator"></div>
+            <div class="beat-indicator"></div>
+            <div class="beat-indicator"></div>
         </div>
-    </footer>
+
+        <div class="metro-main-controls">
+            <button id="metro-btn" class="metro-main-btn" aria-label="Start/Stop Metronome">
+                <span class="metro-icon">⏱️</span>
+                <span class="metro-label">Metronome</span>
+            </button>
+            
+            <div class="bpm-display-container">
+                <span id="bpm-display" class="bpm-value">120</span>
+                <span class="bpm-label">BPM</span>
+            </div>
+        </div>
+
+        <div class="metro-slider-section">
+            <div class="slider-labels">
+                <span>40</span>
+                <span>220</span>
+            </div>
+            <input type="range" id="bpm-slider" min="40" max="220" value="120" aria-label="BPM Control">
+            <div class="preset-bpms">
+                <button class="bpm-preset" data-bpm="60">Slow</button>
+                <button class="bpm-preset" data-bpm="100">Medium</button>
+                <button class="bpm-preset" data-bpm="140">Fast</button>
+            </div>
+        </div>
+
+        <div class="time-sig-section">
+            <label>Time</label>
+            <select id="time-signature">
+                <option value="2">2/4</option>
+                <option value="3">3/4</option>
+                <option value="4" selected>4/4</option>
+                <option value="5">5/4</option>
+                <option value="6">6/8</option>
+                <option value="7">7/8</option>
+            </select>
+        </div>
+
+    </div>
+</footer>
     
     <section style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">
         <h2>Master Guitar Arpeggios and Scales</h2>
