@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>Arpeggio Pro | Ultimate Guitar Scale & Arpeggio Visualizer</title>
-    <meta name="description" content="Interactive guitar scale and arpeggio visualizer. Master the fretboard with multiple tunings, built-in metronome, and offline mode. Free tool for guitarists.">
-    <meta name="keywords" content="guitar, scales, arpeggios, chords, greek modes, fretboard visualizer, music theory, guitar metronome, guitar practice, guitar app">
-    <meta name="author" content="Arpeggio Pro">
-    <meta name="robots" content="index, follow">
+    <meta name="description" content="Interactive guitar scale and arpeggio visualizer. Master the fretboard with multiple tunings, built-in metronome, and offline mode.">
+    <meta name="keywords" content="guitar, scales, arpeggios, fretboard visualizer, music theory, metronome">
     <meta name="theme-color" content="#050505">
     
     <link rel="canonical" href="https://arpeggiopro.com/">
@@ -16,24 +14,20 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://arpeggiopro.com/">
     <meta property="og:title" content="Arpeggio Pro - Master the Fretboard">
-    <meta property="og:description" content="Visualize any scale or arpeggio instantly. Custom tunings, metronome, and offline mode.">
+    <meta property="og:description" content="Visualize any scale or arpeggio instantly. Custom tunings and metronome.">
     <meta property="og:image" content="https://arpeggiopro.com/icons/icon-maskable-512.png"> 
-    
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Arpeggio Pro | Guitar Tools">
-    <meta name="twitter:description" content="The ultimate fretboard visualization tool.">
-    <meta name="twitter:image" content="https://arpeggiopro.com/icons/icon-maskable-512.png">
 
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="icon" type="image/png" href="icons/favicon.png">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png"> 
     <link rel="manifest" href="manifest.json">
     
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
-    <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js" defer></script>
 
     <script type="application/ld+json">
     {
@@ -44,187 +38,148 @@
       "description": "Interactive guitar scale and arpeggio visualizer with metronome.",
       "applicationCategory": "MusicApplication",
       "operatingSystem": "Any",
-      "browserRequirements": "Requires JavaScript. Works in all modern browsers.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "featureList": "Scales, Arpeggios, Chords, Alternate Tunings, Metronome, Practice Tools"
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     }
     </script>
 </head>
 <body>
-<div class="ambient-glow"></div>
-<div class="app-container">
+    <div class="ambient-glow"></div>
     
-    <!-- HEADER COMPACTO CON TODO ARRIBA -->
-    <header class="control-panel glass-panel">
-        <div class="brand">
-            <div class="logo-mark">AP</div>
-            <h1>Arpeggio <span>Pro</span></h1>
-        </div>
-        
-        <!-- FILA 1: Controles principales -->
-        <div class="controls-grid">
-            <div class="control-group">
-                <label>Root</label>
-                <select id="root-note"></select>
-            </div>
-            <div class="control-group">
-                <label>Mode</label>
-                <select id="mode-type">
-                    <option value="chord">Arpeggio</option>
-                    <option value="scale">Scale</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Type</label>
-                <select id="sub-type"></select>
-            </div>
-        </div>
-
-        <!-- FILA 2: Settings (Tuning + Handedness) -->
-        <div class="settings-row">
-            <div class="control-group tuning-group">
-                <label>Tuning</label>
-                <select id="tuning-select" aria-label="Guitar Tuning">
-                    <optgroup label="Standard">
-                        <option value="standard">Standard E</option>
-                        <option value="halfStep">Eb (Half Step)</option>
-                        <option value="dStd">D Standard</option>
-                    </optgroup>
-                    <optgroup label="Drop">
-                        <option value="dropD">Drop D</option>
-                        <option value="dropCs">Drop C#</option>
-                        <option value="dropC">Drop C</option>
-                    </optgroup>
-                    <optgroup label="Open">
-                        <option value="openG">Open G</option>
-                        <option value="openD">Open D</option>
-                        <option value="openE">Open E</option>
-                    </optgroup>
-                    <optgroup label="Misc">
-                        <option value="dadgad">DADGAD</option>
-                    </optgroup>
-                </select>
+    <div class="app-container">
+        <header class="control-panel glass-panel">
+            <div class="brand">
+                <div class="logo-mark">AP</div>
+                <h1>Arpeggio <span>Pro</span></h1>
             </div>
             
-            <div class="control-group handedness-group">
-                <label>Hand</label>
-                <button id="lefty-btn" class="hand-toggle-btn" aria-label="Toggle Handedness">
-                    <span class="hand-icon">🎸</span>
-                    <span class="hand-text">Right</span>
-                </button>
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="root-note">Root</label>
+                    <select id="root-note"></select>
+                </div>
+                <div class="control-group">
+                    <label for="mode-type">Mode</label>
+                    <select id="mode-type">
+                        <option value="chord">Arpeggio</option>
+                        <option value="scale">Scale</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sub-type">Type</label>
+                    <select id="sub-type"></select>
+                </div>
             </div>
-        </div>
 
-        <!-- Indicador compacto de escala actual (opcional, solo en desktop) -->
-        <div id="current-scale-indicator" class="scale-indicator"></div>
-    </header>
-
-    <!-- DIAPASÓN - MÁS ESPACIO AHORA -->
-    <main class="fretboard-container relative-container">
-        <div id="scroller" class="fretboard-scroll ebony">
-            <div id="fretboard" class="fretboard"></div>
-        </div>
-
-        <div class="nav-controls">
-            <button id="scroll-left" class="nav-arrow" aria-label="Scroll Left">‹</button>
-            <span class="nav-label">Navigate</span>
-            <button id="scroll-right" class="nav-arrow" aria-label="Scroll Right">›</button>
-        </div>
-    </main>
-
-    <!-- METRÓNOMO FLOTANTE -->
-    <footer class="command-deck-container" id="metro-footer">
-    <div class="glass-deck glass-deck-metronome">
-        
-        <div id="drawer-toggle" class="drawer-handle"></div>
-
-        <div class="beat-indicators">
-            <div class="beat-indicator"></div>
-            <div class="beat-indicator"></div>
-            <div class="beat-indicator"></div>
-            <div class="beat-indicator"></div>
-        </div>
-
-        <div class="metro-main-controls">
-            <button id="metro-btn" class="metro-main-btn" aria-label="Start/Stop Metronome">
-                <span class="metro-icon">⏱️</span>
-                <span class="metro-label">Metronome</span>
-            </button>
-            
-            <div class="bpm-display-container">
-                <span id="bpm-display" class="bpm-value">120</span>
-                <span class="bpm-label">BPM</span>
+            <div class="settings-row">
+                <div class="control-group tuning-group">
+                    <label for="tuning-select">Tuning</label>
+                    <select id="tuning-select">
+                        <optgroup label="Standard">
+                            <option value="standard">Standard E</option>
+                            <option value="halfStep">Eb (Half Step)</option>
+                            <option value="dStd">D Standard</option>
+                        </optgroup>
+                        <optgroup label="Drop">
+                            <option value="dropD">Drop D</option>
+                            <option value="dropCs">Drop C#</option>
+                            <option value="dropC">Drop C</option>
+                        </optgroup>
+                        <optgroup label="Open">
+                            <option value="openG">Open G</option>
+                            <option value="openD">Open D</option>
+                            <option value="openE">Open E</option>
+                        </optgroup>
+                        <optgroup label="Misc">
+                            <option value="dadgad">DADGAD</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="control-group handedness-group">
+                    <label>Hand</label>
+                    <button id="lefty-btn" class="hand-toggle-btn">
+                        <span class="hand-icon">🎸</span>
+                        <span class="hand-text">Right</span>
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="metro-slider-section">
-            <div class="slider-labels">
-                <span>40</span>
-                <span>220</span>
+            <div id="current-scale-indicator" class="scale-indicator"></div>
+        </header>
+
+        <main class="fretboard-container relative-container">
+            <div id="scroller" class="fretboard-scroll ebony">
+                <div id="fretboard" class="fretboard"></div>
             </div>
-            <input type="range" id="bpm-slider" min="40" max="220" value="120" aria-label="BPM Control">
-            <div class="preset-bpms">
-                <button class="bpm-preset" data-bpm="60">Slow</button>
-                <button class="bpm-preset" data-bpm="100">Medium</button>
-                <button class="bpm-preset" data-bpm="140">Fast</button>
+
+            <div class="nav-controls">
+                <button id="scroll-left" class="nav-arrow" aria-label="Scroll Left">‹</button>
+                <span class="nav-label">Navigate</span>
+                <button id="scroll-right" class="nav-arrow" aria-label="Scroll Right">›</button>
             </div>
-        </div>
+        </main>
 
-        <div class="time-sig-section">
-            <label>Time</label>
-            <select id="time-signature">
-                <option value="2">2/4</option>
-                <option value="3">3/4</option>
-                <option value="4" selected>4/4</option>
-                <option value="5">5/4</option>
-                <option value="6">6/8</option>
-                <option value="7">7/8</option>
-            </select>
-        </div>
+        <footer class="command-deck-container" id="metro-footer">
+            <div class="glass-deck glass-deck-metronome">
+                <div id="drawer-toggle" class="drawer-handle"></div>
 
+                <div class="beat-indicators">
+                    <div class="beat-indicator"></div>
+                    <div class="beat-indicator"></div>
+                    <div class="beat-indicator"></div>
+                    <div class="beat-indicator"></div>
+                </div>
+
+                <div class="metro-main-controls">
+                    <button id="metro-btn" class="metro-main-btn">
+                        <span class="metro-icon">⏱️</span>
+                        <span class="metro-label">Metronome</span>
+                    </button>
+                    
+                    <div class="bpm-display-container">
+                        <span id="bpm-display" class="bpm-value">120</span>
+                        <span class="bpm-label">BPM</span>
+                    </div>
+                </div>
+
+                <div class="metro-slider-section">
+                    <div class="slider-labels"><span>40</span><span>220</span></div>
+                    <input type="range" id="bpm-slider" min="40" max="220" value="120">
+                    <div class="preset-bpms">
+                        <button class="bpm-preset" data-bpm="60">Slow</button>
+                        <button class="bpm-preset" data-bpm="100">Medium</button>
+                        <button class="bpm-preset" data-bpm="140">Fast</button>
+                    </div>
+                </div>
+
+                <div class="time-sig-section">
+                    <label for="time-signature">Time</label>
+                    <select id="time-signature">
+                        <option value="2">2/4</option>
+                        <option value="3">3/4</option>
+                        <option value="4" selected>4/4</option>
+                        <option value="5">5/4</option>
+                        <option value="6">6/8</option>
+                        <option value="7">7/8</option>
+                    </select>
+                </div>
+            </div>
+        </footer>
+
+        <section class="visually-hidden">
+            <h2>Master Guitar Arpeggios and Scales</h2>
+            <p>Explore Major, Minor, Pentatonic scales and Greek modes. Support for alternate tunings and offline practice.</p>
+        </section>
     </div>
-</footer>
-    
-    <section style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">
-        <h2>Master Guitar Arpeggios and Scales</h2>
-        <p>Arpeggio Pro is a Progressive Web App (PWA) designed for serious musicians. Visualize major, minor, augmented, and diminished arpeggios, plus jazz extensions (7th, 9th, 11th, 13th).</p>
-        <p>Explore the Major Scale, Pentatonics, Blues scales, and all seven Greek modes (Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian) across the fretboard.</p>
-        <h3>Key Features:</h3>
-        <ul>
-            <li>Full support for Drop D, Open G, DADGAD, and Standard tunings.</li>
-            <li>Professional metronome with multiple time signatures.</li>
-            <li>Left-handed and right-handed modes.</li>
-            <li>Works offline on iOS and Android.</li>
-        </ul>
-    </section>
 
-</div>
-
-<script src="script.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('SW registered:', reg.scope))
-        .catch(err => console.error('SW error:', err));
-    });
-  }
-
-  // Presets de BPM
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.bpm-preset').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const bpm = btn.dataset.bpm;
-        document.getElementById('bpm-slider').value = bpm;
-        document.getElementById('bpm-display').innerText = bpm;
-        if(window.Tone) Tone.Transport.bpm.value = bpm;
-      });
-    });
-  });
-</script>
+    <script src="script.js"></script>
+    <script>
+        // PWA Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(console.error);
+            });
+        }
+    </script>
 </body>
 </html>
